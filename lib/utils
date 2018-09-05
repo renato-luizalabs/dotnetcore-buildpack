@@ -41,3 +41,17 @@ export_env_dir() {
     fi
   fi
 }
+
+function install_newrelic() {
+  local BUILD_DIR="$1"
+  local CACHE_DIR="$2"
+  local ZIP_NAME="newrelic-netcore20-agent_8.6.45.0_amd64.tar.gz"
+  
+  if [ ! -f $CACHE_DIR/$ZIP_NAME ]; then
+    curl -sSL -o $CACHE_DIR/$ZIP_NAME http://download.newrelic.com/dot_net_agent/previous_releases/8.6.45.0/newrelic-netcore20-agent_8.6.45.0_amd64.tar.gz
+  else
+    echo "$ZIP_NAME from cache folder"
+  fi
+
+  mkdir -p ${BUILD_DIR}/.heroku/newrelic && tar zxf $CACHE_DIR/$ZIP_NAME -C ${BUILD_DIR}/.heroku/newrelic
+}

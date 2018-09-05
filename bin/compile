@@ -51,12 +51,23 @@ if [ -n "$(cat $PROJECT_FILE | grep 'netcoreapp2.0')" ]; then
 	echo "More info https://github.com/jincod/dotnetcore-buildpack/issues/44" | indent
 fi
 
+if [ -f ${BUILD_DIR}/newrelic.config ]; then
+	echo "Installing newrelic"
+	install_newrelic $BUILD_DIR $CACHE_DIR
+fi
+
 echo "publish ${PROJECT_FILE}"
 dotnet publish $PROJECT_FILE --output ${BUILD_DIR}/heroku_output --configuration Release --runtime linux-x64
 
+if [ -n "$(for fn in <(find ${BUILD_DIR} -type f -iname '*init.cs'); do if [ -n "$(cat ${fn} | grep ':Migration\|: Migration')" ]; then echo 'Find'; break; fi done)" ]; then
+	echo "run migrate"
+	cd ${BUILD_DIR}/${PROJECT_NAME}
+	dotnet ef database update
+fi
+
 if [ ! -f ${BUILD_DIR}/Procfile ]; then
 	cat << EOT >> ${BUILD_DIR}/Procfile
-web: cd \$HOME/heroku_output && ./${PROJECT_NAME}
+web: cd \$HOME/heroku_output && dotnet "${PROJECT_NAME}.dll"
 EOT
 else
 	topic "WARNING"
