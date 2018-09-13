@@ -59,11 +59,9 @@ fi
 echo "publish ${PROJECT_FILE}"
 dotnet publish $PROJECT_FILE --output ${BUILD_DIR}/heroku_output --configuration Release --runtime linux-x64
 
-if [ -n "$(for fn in <(find ${BUILD_DIR} -type f -iname '*init.cs'); do if [ -n "$(cat ${fn} | grep ':Migration\|: Migration')" ]; then echo 'Find'; break; fi done)" ]; then
-	echo "run migrate"
-	cd ${BUILD_DIR}/${PROJECT_NAME}
-	dotnet ef database update
-fi
+echo "run migrate"
+cd ${BUILD_DIR}/${PROJECT_NAME}
+dotnet ef database update
 
 if [ ! -f ${BUILD_DIR}/Procfile ]; then
 	cat << EOT >> ${BUILD_DIR}/Procfile
