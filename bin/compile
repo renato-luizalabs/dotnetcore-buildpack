@@ -59,10 +59,6 @@ fi
 echo "publish ${PROJECT_FILE}"
 dotnet publish $PROJECT_FILE --output ${BUILD_DIR}/heroku_output --configuration Release --runtime linux-x64
 
-echo "run migrate"
-cd ${BUILD_DIR}/src/${PROJECT_NAME}
-dotnet ef database update
-
 if [ ! -f ${BUILD_DIR}/Procfile ]; then
 	cat << EOT >> ${BUILD_DIR}/Procfile
 web: cd \$HOME/heroku_output && dotnet "${PROJECT_NAME}.dll"
